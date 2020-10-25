@@ -1,4 +1,4 @@
-import { Flow } from './flow'
+import Flow from './flow'
 import {
   hasWebGLSupportWithExtensions,
   INITIAL_SPEED,
@@ -12,8 +12,7 @@ import {
 import { Buttons, HuePicker, Slider } from './ui'
 
 if (hasWebGLSupportWithExtensions(['OES_texture_float'])) {
-  // @ts-ignore
-  var flow = new Flow(
+  const flow = new Flow(
     (document.getElementById('render') as unknown) as HTMLCanvasElement
   )
 
@@ -22,7 +21,7 @@ if (hasWebGLSupportWithExtensions(['OES_texture_float'])) {
   flow.setPersistence(INITIAL_TURBULENCE)
 
   // @ts-ignore
-  var speedSlider = new Slider(
+  const speedSlider = new Slider(
     document.getElementById('speed-slider'),
     0.0,
     MAX_SPEED,
@@ -33,7 +32,7 @@ if (hasWebGLSupportWithExtensions(['OES_texture_float'])) {
   )
 
   // @ts-ignore
-  var turbulenceSlider = new Slider(
+  const turbulenceSlider = new Slider(
     document.getElementById('turbulence-slider'),
     0.0,
     MAX_TURBULENCE,
@@ -44,7 +43,7 @@ if (hasWebGLSupportWithExtensions(['OES_texture_float'])) {
   )
 
   // @ts-ignore
-  var buttons = new Buttons(
+  const buttons = new Buttons(
     [
       document.getElementById('count-16'),
       document.getElementById('count-17'),
@@ -58,27 +57,27 @@ if (hasWebGLSupportWithExtensions(['OES_texture_float'])) {
     }
   )
 
-  // @ts-ignore
-  var picker = new HuePicker(document.getElementById('picker'), function (
-    value: number
-  ) {
-    flow.setHue(value)
+  const picker = new HuePicker(
+    document.getElementById('picker') as HTMLCanvasElement,
+    function (value: number) {
+      flow.setHue(value)
 
-    var color = hsvToRGB(value, UI_SATURATION, UI_VALUE)
-    var rgbString =
-      'rgb(' +
-      (color[0] * 255).toFixed(0) +
-      ',' +
-      (color[1] * 255).toFixed(0) +
-      ',' +
-      (color[2] * 255).toFixed(0) +
-      ')'
+      const color = hsvToRGB(value, UI_SATURATION, UI_VALUE)
+      const rgbString =
+        'rgb(' +
+        (color[0] * 255).toFixed(0) +
+        ',' +
+        (color[1] * 255).toFixed(0) +
+        ',' +
+        (color[2] * 255).toFixed(0) +
+        ')'
 
-    speedSlider.setColor(rgbString)
-    turbulenceSlider.setColor(rgbString)
+      speedSlider.setColor(rgbString)
+      turbulenceSlider.setColor(rgbString)
 
-    buttons.setColor(rgbString)
-  })
+      buttons.setColor(rgbString)
+    }
+  )
 } else {
   //@ts-ignore
   document.getElementById('gui').style.display = 'none'

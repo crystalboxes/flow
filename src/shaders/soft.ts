@@ -1,6 +1,6 @@
 import glsl from 'glslify'
 
-var vertex = glsl`
+const vertex = glsl`
 precision highp float;
 
 attribute vec2 a_position;
@@ -9,7 +9,7 @@ void main () {
   gl_Position = vec4(a_position, 0.0, 1.0);
 }` as string
 
-var fragment = glsl`precision highp float;
+const fragment = glsl`precision highp float;
 
 uniform sampler2D u_dataTexture;
 

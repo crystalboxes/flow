@@ -1,6 +1,6 @@
 import glsl from 'glslify'
 
-export var vertex = glsl`  
+const vertex = glsl`  
 precision highp float;
 
 attribute vec2 a_textureCoordinates;
@@ -28,7 +28,7 @@ void main () {
   gl_Position = u_lightProjectionMatrix * vec4(viewSpacePosition, 1.0);
 }` as string
 
-export var fragment = glsl`
+const fragment = glsl`
 precision highp float;
 
 uniform float u_particleAlpha;

@@ -118,8 +118,8 @@ export const HUE_HIGHLIGHTER_VALUE = 0.75
 export const HUE_HIGHLIGHTER_LINE_WIDTH = 5
 
 export function hasWebGLSupportWithExtensions(extensions: string[]) {
-  var canvas = document.createElement('canvas')
-  var gl = null
+  const canvas = document.createElement('canvas')
+  let gl = null
   try {
     gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
   } catch (e) {
@@ -129,7 +129,7 @@ export function hasWebGLSupportWithExtensions(extensions: string[]) {
     return false
   }
 
-  for (var i = 0; i < extensions.length; ++i) {
+  for (let i = 0; i < extensions.length; ++i) {
     // @ts-ignore
     if (gl.getExtension(extensions[i]) === null) {
       return false
@@ -145,15 +145,15 @@ export function buildProgramWrapper(
   fragmentShader: WebGLShader,
   attributeLocations: { [index: string]: number }
 ) {
-  var programWrapper: { [index: string]: any } = {}
+  const programWrapper: { [index: string]: any } = {}
 
-  var program = gl.createProgram()
+  const program = gl.createProgram()
   if (!program) {
     throw new Error('')
   }
   gl.attachShader(program, vertexShader)
   gl.attachShader(program, fragmentShader)
-  for (var attributeName in attributeLocations) {
+  for (let attributeName in attributeLocations) {
     gl.bindAttribLocation(
       program,
       attributeLocations[attributeName],
@@ -161,9 +161,9 @@ export function buildProgramWrapper(
     )
   }
   gl.linkProgram(program)
-  var uniformLocations: { [index: string]: WebGLUniformLocation } = {}
-  var numberOfUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
-  for (var i = 0; i < numberOfUniforms; i += 1) {
+  const uniformLocations: { [index: string]: WebGLUniformLocation } = {}
+  const numberOfUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
+  for (let i = 0; i < numberOfUniforms; i += 1) {
     const activeUniform = gl.getActiveUniform(program, i)
     const uniformLocation = gl.getUniformLocation(
       program,
@@ -185,7 +185,7 @@ export const buildShader = function (
   type: number,
   source: string
 ) {
-  var shader = gl.createShader(type)
+  const shader = gl.createShader(type)
   if (!shader) {
     throw new Error('')
   }
@@ -208,7 +208,7 @@ export const buildTexture = function (
   minFilter: number,
   magFilter: number
 ) {
-  var texture = gl.createTexture()
+  const texture = gl.createTexture()
   gl.activeTexture(gl.TEXTURE0 + unit)
   gl.bindTexture(gl.TEXTURE_2D, texture)
   gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, type, data)
@@ -220,23 +220,10 @@ export const buildTexture = function (
 }
 
 export const buildFramebuffer = function (
-  gl: {
-    createFramebuffer: () => any
-    bindFramebuffer: (arg0: any, arg1: any) => void
-    FRAMEBUFFER: any
-    framebufferTexture2D: (
-      arg0: any,
-      arg1: any,
-      arg2: any,
-      arg3: any,
-      arg4: number
-    ) => void
-    COLOR_ATTACHMENT0: any
-    TEXTURE_2D: any
-  },
+  gl: WebGLRenderingContext,
   attachment: any
 ) {
-  var framebuffer = gl.createFramebuffer()
+  const framebuffer = gl.createFramebuffer()
   gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
   gl.framebufferTexture2D(
     gl.FRAMEBUFFER,
@@ -252,14 +239,17 @@ export const normalizeVector = function (
   out: number[] | Float32Array,
   v: number[] | Float32Array
 ) {
-  var inverseMagnitude =
+  const inverseMagnitude =
     1.0 / Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
   out[0] = v[0] * inverseMagnitude
   out[1] = v[1] * inverseMagnitude
   out[2] = v[2] * inverseMagnitude
 }
 
-export const dotVectors = function (a: number[], b: number[]) {
+export const dotVectors = function (
+  a: number[] | Float32Array,
+  b: number[] | Float32Array
+) {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 }
 
@@ -289,7 +279,7 @@ export const premultiplyMatrix = function (
   matrixB: any[] | Float32Array
 ) {
   //out = matrixB * matrixA
-  var b0 = matrixB[0],
+  let b0 = matrixB[0],
     b4 = matrixB[4],
     b8 = matrixB[8],
     b12 = matrixB[12],
@@ -400,7 +390,7 @@ export const makePerspectiveMatrix = function (
   near: number,
   far: number
 ) {
-  var f = Math.tan(0.5 * (Math.PI - fov)),
+  const f = Math.tan(0.5 * (Math.PI - fov)),
     range = near - far
 
   matrix[0] = f / aspect
@@ -459,32 +449,32 @@ export const makeLookAtMatrix = function (
   up: number[]
 ) {
   //up is assumed to be normalized
-  var forwardX = eye[0] - target[0],
+  let forwardX = eye[0] - target[0],
     forwardY = eye[1] - target[1],
     forwardZ = eye[2] - target[2]
-  var forwardMagnitude = Math.sqrt(
+  const forwardMagnitude = Math.sqrt(
     forwardX * forwardX + forwardY * forwardY + forwardZ * forwardZ
   )
   forwardX /= forwardMagnitude
   forwardY /= forwardMagnitude
   forwardZ /= forwardMagnitude
 
-  var rightX = up[2] * forwardY - up[1] * forwardZ
-  var rightY = up[0] * forwardZ - up[2] * forwardX
-  var rightZ = up[1] * forwardX - up[0] * forwardY
+  let rightX = up[2] * forwardY - up[1] * forwardZ
+  let rightY = up[0] * forwardZ - up[2] * forwardX
+  let rightZ = up[1] * forwardX - up[0] * forwardY
 
-  var rightMagnitude = Math.sqrt(
+  const rightMagnitude = Math.sqrt(
     rightX * rightX + rightY * rightY + rightZ * rightZ
   )
   rightX /= rightMagnitude
   rightY /= rightMagnitude
   rightZ /= rightMagnitude
 
-  var newUpX = forwardY * rightZ - forwardZ * rightY
-  var newUpY = forwardZ * rightX - forwardX * rightZ
-  var newUpZ = forwardX * rightY - forwardY * rightX
+  let newUpX = forwardY * rightZ - forwardZ * rightY
+  let newUpY = forwardZ * rightX - forwardX * rightZ
+  let newUpZ = forwardX * rightY - forwardY * rightX
 
-  var newUpMagnitude = Math.sqrt(
+  const newUpMagnitude = Math.sqrt(
     newUpX * newUpX + newUpY * newUpY + newUpZ * newUpZ
   )
   newUpX /= newUpMagnitude
@@ -510,9 +500,9 @@ export const makeLookAtMatrix = function (
 }
 
 export const randomPointInSphere = function () {
-  var lambda = Math.random()
-  var u = Math.random() * 2.0 - 1.0
-  var phi = Math.random() * 2.0 * Math.PI
+  const lambda = Math.random()
+  const u = Math.random() * 2.0 - 1.0
+  const phi = Math.random() * 2.0 * Math.PI
 
   return [
     Math.pow(lambda, 1 / 3) * Math.sqrt(1.0 - u * u) * Math.cos(phi),
@@ -529,7 +519,7 @@ export const getMousePosition = function (
   event: { clientX: number; clientY: number },
   element: { getBoundingClientRect: () => any }
 ) {
-  var boundingRect = element.getBoundingClientRect()
+  const boundingRect = element.getBoundingClientRect()
   return {
     x: event.clientX - boundingRect.left,
     y: event.clientY - boundingRect.top,
@@ -539,19 +529,19 @@ export const getMousePosition = function (
 export const hsvToRGB = function (h: number, s: number, v: number) {
   h = h % 1
 
-  var c = v * s
+  const c = v * s
 
-  var hDash = h * 6
+  const hDash = h * 6
 
-  var x = c * (1 - Math.abs((hDash % 2) - 1))
+  const x = c * (1 - Math.abs((hDash % 2) - 1))
 
-  var mod = Math.floor(hDash)
+  const mod = Math.floor(hDash)
 
-  var r = [c, x, 0, 0, x, c][mod]
-  var g = [x, c, c, x, 0, 0][mod]
-  var b = [0, 0, x, c, c, x][mod]
+  let r = [c, x, 0, 0, x, c][mod]
+  let g = [x, c, c, x, 0, 0][mod]
+  let b = [0, 0, x, c, c, x][mod]
 
-  var m = v - c
+  const m = v - c
 
   r += m
   g += m
