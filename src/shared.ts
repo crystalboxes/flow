@@ -1,3 +1,5 @@
+import { ProgramWrapper } from './shaders'
+
 export const MAX_DELTA_TIME = 0.2
 
 export const PRESIMULATION_DELTA_TIME = 0.1
@@ -139,20 +141,19 @@ export function hasWebGLSupportWithExtensions(extensions: string[]) {
   return true
 }
 
-export function buildProgramWrapper(
+export function buildProgramWrapper<T extends ProgramWrapper>(
   gl: WebGLRenderingContext,
   vertexShader: WebGLShader,
   fragmentShader: WebGLShader,
   attributeLocations: { [index: string]: number }
-) {
-  const programWrapper: { [index: string]: any } = {}
-
+): T {
   const program = gl.createProgram()
   if (!program) {
-    throw new Error('')
+    throw new Error("Couldn't link the program.")
   }
   gl.attachShader(program, vertexShader)
   gl.attachShader(program, fragmentShader)
+
   for (let attributeName in attributeLocations) {
     gl.bindAttribLocation(
       program,
@@ -160,6 +161,7 @@ export function buildProgramWrapper(
       attributeName
     )
   }
+
   gl.linkProgram(program)
   const uniformLocations: { [index: string]: WebGLUniformLocation } = {}
   const numberOfUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
@@ -174,10 +176,7 @@ export function buildProgramWrapper(
     }
   }
 
-  programWrapper.program = program
-  programWrapper.uniformLocations = uniformLocations
-
-  return programWrapper
+  return { program, uniformLocations } as T
 }
 
 export const buildShader = function (
@@ -499,7 +498,7 @@ export const makeLookAtMatrix = function (
   matrix[15] = 1
 }
 
-export const randomPointInSphere = function () {
+export function randomPointInSphere(): [number, number, number] {
   const lambda = Math.random()
   const u = Math.random() * 2.0 - 1.0
   const phi = Math.random() * 2.0 * Math.PI

@@ -1,4 +1,4 @@
-import Camera from './camera'
+import Camera from '../camera'
 import {
   background,
   floor,
@@ -7,7 +7,8 @@ import {
   resample,
   simulation,
   soft,
-} from './shaders'
+} from '../shaders'
+import { SimulationShader } from '../shaders/simulation'
 import {
   FLOOR_ORIGIN,
   premultiplyMatrix,
@@ -51,7 +52,14 @@ import {
   hsvToRGB,
   PARTICLE_SATURATION,
   PARTICLE_VALUE,
-} from './shared'
+} from '../shared'
+import buildShaderPrograms from './build-shader-programs'
+import makeMatrices from './make-matrices'
+import { makeParticleData } from './particles-initialization'
+import {
+  makeFloorVertexBuffer,
+  makeFullscreenVertexBuffer,
+} from './vertex-buffers'
 
 export default class Flow {
   hue = 0
@@ -222,41 +230,15 @@ export default class Flow {
 
     const camera = new Camera(canvas)
 
-    const projectionMatrix = makePerspectiveMatrix(
-      new Float32Array(16),
-      PROJECTION_FOV,
-      ASPECT_RATIO,
-      PROJECTION_NEAR,
-      PROJECTION_FAR
-    )
-
-    const lightViewMatrix = new Float32Array(16)
-    makeLookAtMatrix(
+    const {
+      projectionMatrix,
       lightViewMatrix,
-      [0.0, 0.0, 0.0],
-      LIGHT_DIRECTION,
-      LIGHT_UP_VECTOR
-    )
-    const lightProjectionMatrix = makeOrthographicMatrix(
-      new Float32Array(16),
-      LIGHT_PROJECTION_LEFT,
-      LIGHT_PROJECTION_RIGHT,
-      LIGHT_PROJECTION_BOTTOM,
-      LIGHT_PROJECTION_TOP,
-      LIGHT_PROJECTION_NEAR,
-      LIGHT_PROJECTION_FAR
-    )
-
-    const lightViewProjectionMatrix = new Float32Array(16)
-    premultiplyMatrix(
+      lightProjectionMatrix,
       lightViewProjectionMatrix,
-      lightViewMatrix,
-      lightProjectionMatrix
-    )
+    } = makeMatrices()
 
     const resampleFramebuffer = gl.createFramebuffer()
 
-    //@ts-ignore
     this.changeQualityLevel(0)
 
     //variables used for sorting
@@ -285,83 +267,19 @@ export default class Flow {
 
     const opacityFramebuffer = buildFramebuffer(gl, opacityTexture)
 
-    const simulationProgramWrapper = buildProgramWrapper(
-      gl,
-      buildShader(gl, gl.VERTEX_SHADER, simulation.vertex),
-      buildShader(gl, gl.FRAGMENT_SHADER, simulation.fragment),
-      { a_position: 0 }
-    )
+    const {
+      simulationProgramWrapper,
+      renderingProgramWrapper,
+      opacityProgramWrapper,
+      sortProgramWrapper,
+      resampleProgramWrapper,
+      floorProgramWrapper,
+      backgroundProgramWrapper,
+    } = buildShaderPrograms(gl)
 
-    const renderingProgramWrapper = buildProgramWrapper(
-      gl,
-      buildShader(gl, gl.VERTEX_SHADER, rendering.vertex),
-      buildShader(gl, gl.FRAGMENT_SHADER, rendering.fragment),
-      { a_textureCoordinates: 0 }
-    )
+    const fullscreenVertexBuffer = makeFullscreenVertexBuffer(gl)
 
-    const opacityProgramWrapper = buildProgramWrapper(
-      gl,
-      buildShader(gl, gl.VERTEX_SHADER, opacity.vertex),
-      buildShader(gl, gl.FRAGMENT_SHADER, opacity.fragment),
-      { a_textureCoordinates: 0 }
-    )
-
-    const sortProgramWrapper = buildProgramWrapper(
-      gl,
-      buildShader(gl, gl.VERTEX_SHADER, soft.vertex),
-      buildShader(gl, gl.FRAGMENT_SHADER, soft.fragment),
-      { a_position: 0 }
-    )
-
-    const resampleProgramWrapper = buildProgramWrapper(
-      gl,
-      buildShader(gl, gl.VERTEX_SHADER, resample.vertex),
-      buildShader(gl, gl.FRAGMENT_SHADER, resample.fragment),
-      { a_position: 0 }
-    )
-
-    const floorProgramWrapper = buildProgramWrapper(
-      gl,
-      buildShader(gl, gl.VERTEX_SHADER, floor.vertex),
-      buildShader(gl, gl.FRAGMENT_SHADER, floor.fragment),
-      { a_vertexPosition: 0 }
-    )
-
-    const backgroundProgramWrapper = buildProgramWrapper(
-      gl,
-      buildShader(gl, gl.VERTEX_SHADER, background.vertex),
-      buildShader(gl, gl.FRAGMENT_SHADER, background.fragment),
-      { a_position: 0 }
-    )
-
-    const fullscreenVertexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, fullscreenVertexBuffer)
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
-      gl.STATIC_DRAW
-    )
-
-    const floorVertexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexBuffer)
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([
-        FLOOR_ORIGIN[0],
-        FLOOR_ORIGIN[1],
-        FLOOR_ORIGIN[2],
-        FLOOR_ORIGIN[0],
-        FLOOR_ORIGIN[1],
-        FLOOR_ORIGIN[2] + FLOOR_HEIGHT,
-        FLOOR_ORIGIN[0] + FLOOR_WIDTH,
-        FLOOR_ORIGIN[1],
-        FLOOR_ORIGIN[2],
-        FLOOR_ORIGIN[0] + FLOOR_WIDTH,
-        FLOOR_ORIGIN[1],
-        FLOOR_ORIGIN[2] + FLOOR_HEIGHT,
-      ]),
-      gl.STATIC_DRAW
-    )
+    const floorVertexBuffer = makeFloorVertexBuffer(gl)
 
     const onresize = function () {
       const aspectRatio = window.innerWidth / window.innerHeight
@@ -385,9 +303,6 @@ export default class Flow {
 
     let lastTime = 0.0
     const render = (currentTime?: number) => {
-      // if (!currentTime) {
-      //   throw new Error('')
-      // }
       if (!currentTime) {
         currentTime = 0
       }
@@ -417,48 +332,13 @@ export default class Flow {
           this.oldParticleCountWidth === 0
         ) {
           //initial generation
-          const particleData = new Float32Array(this.particleCount * 4)
-
-          for (let i = 0; i < this.particleCount; ++i) {
-            const position = randomPointInSphere()
-
-            const positionX = position[0] * SPAWN_RADIUS
-            const positionY = position[1] * SPAWN_RADIUS
-            const positionZ = position[2] * SPAWN_RADIUS
-
-            particleData[i * 4] = positionX
-            particleData[i * 4 + 1] = positionY
-            particleData[i * 4 + 2] = positionZ
-            particleData[i * 4 + 3] = Math.random() * BASE_LIFETIME
-          }
-
-          gl.bindTexture(gl.TEXTURE_2D, particleTextureA)
-          gl.texImage2D(
-            gl.TEXTURE_2D,
-            0,
-            gl.RGBA,
+          makeParticleData(
+            gl,
+            this.particleCount,
             this.particleCountWidth,
             this.particleCountHeight,
-            0,
-            gl.RGBA,
-            gl.FLOAT,
-            particleData
-          )
-
-          // @ts-ignore
-          // delete particleData
-
-          gl.bindTexture(gl.TEXTURE_2D, particleTextureB)
-          gl.texImage2D(
-            gl.TEXTURE_2D,
-            0,
-            gl.RGBA,
-            this.particleCountWidth,
-            this.particleCountHeight,
-            0,
-            gl.RGBA,
-            gl.FLOAT,
-            null
+            particleTextureA,
+            particleTextureB
           )
         } else {
           //resample from A into B
@@ -598,30 +478,30 @@ export default class Flow {
 
         gl.useProgram(simulationProgramWrapper.program)
         gl.uniform2f(
-          simulationProgramWrapper.uniformLocations['u_resolution'],
+          simulationProgramWrapper.uniformLocations.u_resolution,
           this.particleCountWidth,
           this.particleCountHeight
         )
         gl.uniform1f(
-          simulationProgramWrapper.uniformLocations['u_deltaTime'],
+          simulationProgramWrapper.uniformLocations.u_deltaTime,
           firstFrame ? PRESIMULATION_DELTA_TIME : deltaTime * this.timeScale
         )
         gl.uniform1f(
-          simulationProgramWrapper.uniformLocations['u_time'],
+          simulationProgramWrapper.uniformLocations.u_time,
           firstFrame ? PRESIMULATION_DELTA_TIME : currentTime
         )
         gl.uniform1i(
-          simulationProgramWrapper.uniformLocations['u_particleTexture'],
+          simulationProgramWrapper.uniformLocations.u_particleTexture,
           0
         )
 
         gl.uniform1f(
-          simulationProgramWrapper.uniformLocations['u_persistence'],
+          simulationProgramWrapper.uniformLocations.u_persistence,
           this.persistence
         )
 
         gl.uniform1i(
-          simulationProgramWrapper.uniformLocations['u_spawnTexture'],
+          simulationProgramWrapper.uniformLocations.u_spawnTexture,
           1
         )
 
