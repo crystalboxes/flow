@@ -1,19 +1,10 @@
-import {
-  SIMULATION_VERTEX_SHADER_SOURCE,
-  SIMULATION_FRAGMENT_SHADER_SOURCE,
-  RENDERING_VERTEX_SHADER_SOURCE,
-  RENDERING_FRAGMENT_SHADER_SOURCE,
-  OPACITY_VERTEX_SHADER_SOURCE,
-  OPACITY_FRAGMENT_SHADER_SOURCE,
-  SORT_VERTEX_SHADER_SOURCE,
-  SORT_FRAGMENT_SHADER_SOURCE,
-  RESAMPLE_VERTEX_SHADER_SOURCE,
-  RESAMPLE_FRAGMENT_SHADER_SOURCE,
-  FLOOR_VERTEX_SHADER_SOURCE,
-  FLOOR_FRAGMENT_SHADER_SOURCE,
-  BACKGROUND_VERTEX_SHADER_SOURCE,
-  BACKGROUND_FRAGMENT_SHADER_SOURCE,
-} from './shaders'
+import background from './shaders/background'
+import floor from './shaders/floor'
+import opacity from './shaders/opacity'
+import rendering from './shaders/rendering'
+import resample from './shaders/resample'
+import simulation from './shaders/simulation'
+import soft from './shaders/soft'
 import {
   FLOOR_ORIGIN,
   INITIAL_AZIMUTH,
@@ -454,50 +445,50 @@ export var Flow = function (canvas: HTMLCanvasElement) {
 
   var simulationProgramWrapper = buildProgramWrapper(
     gl,
-    buildShader(gl, gl.VERTEX_SHADER, SIMULATION_VERTEX_SHADER_SOURCE),
-    buildShader(gl, gl.FRAGMENT_SHADER, SIMULATION_FRAGMENT_SHADER_SOURCE),
+    buildShader(gl, gl.VERTEX_SHADER, simulation.vertex),
+    buildShader(gl, gl.FRAGMENT_SHADER, simulation.fragment),
     { a_position: 0 }
   )
 
   var renderingProgramWrapper = buildProgramWrapper(
     gl,
-    buildShader(gl, gl.VERTEX_SHADER, RENDERING_VERTEX_SHADER_SOURCE),
-    buildShader(gl, gl.FRAGMENT_SHADER, RENDERING_FRAGMENT_SHADER_SOURCE),
+    buildShader(gl, gl.VERTEX_SHADER, rendering.vertex),
+    buildShader(gl, gl.FRAGMENT_SHADER, rendering.fragment),
     { a_textureCoordinates: 0 }
   )
 
   var opacityProgramWrapper = buildProgramWrapper(
     gl,
-    buildShader(gl, gl.VERTEX_SHADER, OPACITY_VERTEX_SHADER_SOURCE),
-    buildShader(gl, gl.FRAGMENT_SHADER, OPACITY_FRAGMENT_SHADER_SOURCE),
+    buildShader(gl, gl.VERTEX_SHADER, opacity.vertex),
+    buildShader(gl, gl.FRAGMENT_SHADER, opacity.fragment),
     { a_textureCoordinates: 0 }
   )
 
   var sortProgramWrapper = buildProgramWrapper(
     gl,
-    buildShader(gl, gl.VERTEX_SHADER, SORT_VERTEX_SHADER_SOURCE),
-    buildShader(gl, gl.FRAGMENT_SHADER, SORT_FRAGMENT_SHADER_SOURCE),
+    buildShader(gl, gl.VERTEX_SHADER, soft.vertex),
+    buildShader(gl, gl.FRAGMENT_SHADER, soft.fragment),
     { a_position: 0 }
   )
 
   var resampleProgramWrapper = buildProgramWrapper(
     gl,
-    buildShader(gl, gl.VERTEX_SHADER, RESAMPLE_VERTEX_SHADER_SOURCE),
-    buildShader(gl, gl.FRAGMENT_SHADER, RESAMPLE_FRAGMENT_SHADER_SOURCE),
+    buildShader(gl, gl.VERTEX_SHADER, resample.vertex),
+    buildShader(gl, gl.FRAGMENT_SHADER, resample.fragment),
     { a_position: 0 }
   )
 
   var floorProgramWrapper = buildProgramWrapper(
     gl,
-    buildShader(gl, gl.VERTEX_SHADER, FLOOR_VERTEX_SHADER_SOURCE),
-    buildShader(gl, gl.FRAGMENT_SHADER, FLOOR_FRAGMENT_SHADER_SOURCE),
+    buildShader(gl, gl.VERTEX_SHADER, floor.vertex),
+    buildShader(gl, gl.FRAGMENT_SHADER, floor.fragment),
     { a_vertexPosition: 0 }
   )
 
   var backgroundProgramWrapper = buildProgramWrapper(
     gl,
-    buildShader(gl, gl.VERTEX_SHADER, BACKGROUND_VERTEX_SHADER_SOURCE),
-    buildShader(gl, gl.FRAGMENT_SHADER, BACKGROUND_FRAGMENT_SHADER_SOURCE),
+    buildShader(gl, gl.VERTEX_SHADER, background.vertex),
+    buildShader(gl, gl.FRAGMENT_SHADER, background.fragment),
     { a_position: 0 }
   )
 
