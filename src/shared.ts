@@ -206,7 +206,7 @@ export const buildTexture = function (
   wrapT: number,
   minFilter: number,
   magFilter: number
-) {
+): WebGLTexture {
   const texture = gl.createTexture()
   gl.activeTexture(gl.TEXTURE0 + unit)
   gl.bindTexture(gl.TEXTURE_2D, texture)
@@ -215,7 +215,7 @@ export const buildTexture = function (
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter)
-  return texture
+  return texture as WebGLTexture
 }
 
 export const buildFramebuffer = function (

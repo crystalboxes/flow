@@ -1,3 +1,4 @@
+//@ts-ignore
 import glsl from 'glslify'
 import { BACKGROUND_DISTANCE_SCALE } from '../shared'
 

@@ -147,7 +147,4 @@ export const resampleTextures = ({
     null
   )
 
-  const temp = particleTextureA
-  particleTextureA = particleTextureB
-  particleTextureB = temp
 }

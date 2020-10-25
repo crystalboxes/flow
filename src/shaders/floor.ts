@@ -1,3 +1,4 @@
+//@ts-ignore
 import glsl from 'glslify'
 const vertex = glsl`
 precision highp float;

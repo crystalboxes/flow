@@ -5,6 +5,7 @@ import {
   NOISE_SCALE,
   BASE_SPEED,
 } from '../shared'
+//@ts-ignore
 import glsl from 'glslify'
 import { ProgramWrapper } from '.'
 

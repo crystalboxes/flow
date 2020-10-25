@@ -21,7 +21,7 @@ export function makeFloorVertexBuffer(gl: WebGLRenderingContext) {
     ]),
     gl.STATIC_DRAW
   )
-  return floorVertexBuffer
+  return floorVertexBuffer as WebGLBuffer
 }
 
 export function makeFullscreenVertexBuffer(gl: WebGLRenderingContext) {
@@ -33,5 +33,5 @@ export function makeFullscreenVertexBuffer(gl: WebGLRenderingContext) {
     gl.STATIC_DRAW
   )
 
-  return fullscreenVertexBuffer
+  return fullscreenVertexBuffer as WebGLBuffer
 }
