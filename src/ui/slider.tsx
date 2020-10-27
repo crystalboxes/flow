@@ -1,38 +1,5 @@
-import {
-  h,
-  createApp,
-  defineComponent,
-  ref,
-  onMounted,
-  render,
-  reactive,
-  onUnmounted,
-} from 'vue'
-import Flow from '../flow'
-import {
-  BUTTON_ACTIVE_COLOR,
-  BUTTON_BACKGROUND,
-  BUTTON_COLOR,
-  getMousePosition,
-  hsvToRGB,
-  HUE_HIGHLIGHTER_ANGLE_OFFSET,
-  HUE_HIGHLIGHTER_LINE_WIDTH,
-  HUE_HIGHLIGHTER_RADIUS_OFFSET,
-  HUE_HIGHLIGHTER_SATURATION,
-  HUE_HIGHLIGHTER_VALUE,
-  HUE_INNER_RADIUS,
-  HUE_OUTER_RADIUS,
-  HUE_PICKER_SATURATION,
-  HUE_PICKER_VALUE,
-  INITIAL_SPEED,
-  INITIAL_TURBULENCE,
-  MAX_SPEED,
-  MAX_TURBULENCE,
-  rgbToString,
-  UI_SATURATION,
-  UI_VALUE,
-} from '../shared'
-import Buttons from './buttons'
+import { h, defineComponent, ref, onMounted } from 'vue'
+import { getMousePosition } from '../shared'
 
 function clamp(x: number, min: number, max: number) {
   return Math.max(min, Math.min(max, x))

@@ -1,18 +1,5 @@
+import { h, defineComponent, ref, onMounted, onUnmounted } from 'vue'
 import {
-  h,
-  createApp,
-  defineComponent,
-  ref,
-  onMounted,
-  render,
-  reactive,
-  onUnmounted,
-} from 'vue'
-import Flow from '../flow'
-import {
-  BUTTON_ACTIVE_COLOR,
-  BUTTON_BACKGROUND,
-  BUTTON_COLOR,
   getMousePosition,
   hsvToRGB,
   HUE_HIGHLIGHTER_ANGLE_OFFSET,
@@ -24,16 +11,8 @@ import {
   HUE_OUTER_RADIUS,
   HUE_PICKER_SATURATION,
   HUE_PICKER_VALUE,
-  INITIAL_SPEED,
-  INITIAL_TURBULENCE,
-  MAX_SPEED,
-  MAX_TURBULENCE,
   rgbToString,
-  UI_SATURATION,
-  UI_VALUE,
 } from '../shared'
-import Buttons from './buttons'
-import Slider from './slider'
 
 const HuePicker = defineComponent({
   props: {
