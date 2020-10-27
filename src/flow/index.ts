@@ -136,6 +136,7 @@ export default class Flow {
 
     window.addEventListener('resize', onresize)
     onresize()
+
     //variables used for sorting
     let totalSortSteps =
       (log2(this.particleCount) * (log2(this.particleCount) + 1)) / 2
@@ -148,6 +149,7 @@ export default class Flow {
     let flipped = false
 
     let lastTime = 0.0
+    
     const render = (currentTime?: number) => {
       if (!currentTime) {
         currentTime = 0
